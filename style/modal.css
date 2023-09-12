@@ -6,13 +6,8 @@
     cursor: pointer;
     padding: 30px;
     overflow-y: auto;
-    /* display: none; */
     display: flex;
 }
-
-/* .modal_open {
-    display: flex;
-} */
 
 .modal__main {
     position: relative;
@@ -37,3 +32,9 @@
     outline-color: gray;
 }
 
+
+@media (max-width: 640px) { 
+    .modal {
+        padding: 30px 15px;
+    }
+}

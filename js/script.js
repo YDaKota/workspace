@@ -43,7 +43,6 @@ const createCards = (data) =>
     });
 
 const renderVacancies = (data) => {
-    // const cardsList = document.querySelector('.cards__list');
     cardsList.textContent = "";
     const cards = createCards(data);
     cardsList.append(...cards);
@@ -56,7 +55,6 @@ const renderVacancies = (data) => {
 };
 
 const renderMoreVacancies = (data) => {
-    // const cardsList = document.querySelector('.cards__list');
     const cards = createCards(data);
     cardsList.append(...cards);
     
@@ -165,8 +163,46 @@ const observer = new IntersectionObserver(
     },
 );
 
+const openFilter = (btn, dropDown, classNameBtn, classNameDrop) => {
+    dropDown.style.height = `${dropDown.scrollHeight}px`;
+    btn.classList.add(classNameBtn);
+    dropDown.classList.add(classNameDrop);
+};
+
+const closeFilter = (btn, dropDown, classNameBtn, classNameDrop) => {
+    btn.classList.remove(classNameBtn);
+    dropDown.classList.remove(classNameDrop);
+    dropDown.style.height = "";
+};
+
 const init = () => {
     const filterForm = document.querySelector('.filter__form');
+    const vacanciesFilterBtn = document.querySelector('.vacancies__filter-btn');
+    const vacanciesFilter = document.querySelector('.vacancies__filter');
+
+vacanciesFilterBtn.addEventListener('click', () => {
+    if (vacanciesFilterBtn.classList.contains('vacancies__filter-btn_active')) {
+        closeFilter(vacanciesFilterBtn, 
+            vacanciesFilter, 
+            "vacancies__filter-btn_active",
+            "vacancies__filter_active",
+            );
+    } else {
+    openFilter(
+        vacanciesFilterBtn, 
+        vacanciesFilter, 
+        "vacancies__filter-btn_active",
+        "vacancies__filter_active",
+        );
+    };
+    });
+
+    window.addEventListener('resize', () => {
+        if (vacanciesFilterBtn.classList.contains('vacancies__filter-btn_active')) {
+            vacanciesFilter.style.height = `${vacanciesFilter.scrollHeight}px`;
+        }
+        
+    });
 
     // select city
     const citySelect = document.querySelector('#city');
@@ -213,6 +249,15 @@ const init = () => {
         }
     });
 
+    cardsList.addEventListener('keydown', ({ code, target }) => {
+    const vacancyCard = target.closest('.vacancy');
+        if ((code === 'Enter' || code === 'NumpadEnter') && vacancyCard) {
+            const vacancyId = vacancyCard.dataset.id;
+            openModal(vacancyId);
+            target.blur();
+        }
+    });
+
     //filter
 
     filterForm.addEventListener('submit', (event) => {
@@ -225,9 +270,17 @@ const init = () => {
             urlWithParam.searchParams.append(key, value);
         });
 
-        getData(urlWithParam, renderVacancies, renderError).then(() => {
-            lastUrl = urlWithParam;
-        });;
+        getData(urlWithParam, renderVacancies, renderError)
+            .then(() => {
+                lastUrl = urlWithParam;
+            })
+            .then(() => {
+                closeFilter(vacanciesFilterBtn, 
+                    vacanciesFilter, 
+                    "vacancies__filter-btn_active",
+                    "vacancies__filter_active",
+                    );
+            });
     });
 };
 
