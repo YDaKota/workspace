@@ -209,6 +209,7 @@ vacanciesFilterBtn.addEventListener('click', () => {
     const cityChoices = new Choices(citySelect, {
         searchEnabled: false,
         itemSelectText: "",
+        position: "bottom",
     });
 
     getData(
