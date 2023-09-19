@@ -1,6 +1,5 @@
 // const API_URL = "https://workspace-methed.vercel.app/";
 const API_URL = "https://crawling-past-aquarius.glitch.me";
-// const API_URL = "https://diamond-phantom-stocking.glitch.me";
 const LOCATION_URL = "api/locations";
 const VACANCY_URL = "api/vacancy";
 
