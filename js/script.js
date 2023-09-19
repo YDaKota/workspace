@@ -1,4 +1,6 @@
-const API_URL = "https://workspace-methed.vercel.app/";
+// const API_URL = "https://workspace-methed.vercel.app/";
+const API_URL = "https://crawling-past-aquarius.glitch.me";
+// const API_URL = "https://diamond-phantom-stocking.glitch.me";
 const LOCATION_URL = "api/locations";
 const VACANCY_URL = "api/vacancy";
 
@@ -176,11 +178,12 @@ const closeFilter = (btn, dropDown, classNameBtn, classNameDrop) => {
 };
 
 const init = () => {
-    const filterForm = document.querySelector('.filter__form');
+    try {
+        const filterForm = document.querySelector('.filter__form');
     const vacanciesFilterBtn = document.querySelector('.vacancies__filter-btn');
     const vacanciesFilter = document.querySelector('.vacancies__filter');
 
-vacanciesFilterBtn.addEventListener('click', () => {
+    vacanciesFilterBtn.addEventListener('click', () => {
     if (vacanciesFilterBtn.classList.contains('vacancies__filter-btn_active')) {
         closeFilter(vacanciesFilterBtn, 
             vacanciesFilter, 
@@ -283,6 +286,129 @@ vacanciesFilterBtn.addEventListener('click', () => {
                     );
             });
     });
+    } catch (error) {
+        console.log("error: " + error);
+        console.warn("Мы не на странице index.html");
+    }
+
+    try {
+        const validationForm = (form) => {
+            const validate = new JustValidate(form, {
+                // errorLabelStyle: {
+                //     color: "#f00",
+                // },
+                // errorFieldStyle: {
+                //     borderColor: "#f000",
+                // },
+                errorFieldCssClass: "invalid",
+                errorsContainer: document.querySelector('.employer__error'),
+            });
+            validate
+                .addField('#logo', [
+                    { 
+                        rule: 'minFilesCount', 
+                        value: 1, 
+                        errorMessage: 'Добавьте логотип', 
+                    },
+                    { 
+                        rule: 'files', 
+                        value: {
+                            files: {
+                                extensions: ['jpeg', 'png', 'jpg'],
+                                maxSize: 102400,
+                                minSize: 1000,
+                                types: ['image/jpeg', 'image/png'],
+                            }
+                        }, 
+                        errorMessage: 'Размер файла должен быть не больше 100Кб',
+                    },
+                ])
+                .addField('#company', [
+                    { rule: 'required', errorMessage: 'Заполните название компании' },
+                ])
+                .addField('#title', [
+                    { rule: 'required', errorMessage: 'Заполните название вакансии' },
+                ])
+                .addField('#salary', [
+                    { rule: 'required', errorMessage: 'Заполните заработную плату' },
+                ])
+                .addField('#location', [
+                    { rule: 'required', errorMessage: 'Заполните город' },
+                ])
+                .addField('#email', [
+                    { rule: 'required', errorMessage: 'Заполните емейл', },
+                    { rule: 'email', errorMessage: 'Введите корректный email', },
+                ])
+                .addField('#description', [
+                    { rule: 'required', errorMessage: 'Заполните описание' },
+                ])
+                .addRequiredGroup("#format", 'Выберите формат')
+                .addRequiredGroup("#experience", 'Выберите опыт')
+                .addRequiredGroup("#type", 'Выберите занятость');
+                
+            return validate;
+        };
+
+        const fileController = () => {
+            const file = document.querySelector('.file');
+            const preview = file.querySelector('.file__preview');
+            const input = file.querySelector('.file__input');
+
+            input.addEventListener('change', (e) => {
+                console.log(e.target.files);
+                if (e.target.files.length > 0) {
+                    const src = URL.createObjectURL(e.target.files[0]);
+                    // console.log(src);
+                    file.classList.add('file_active');
+                    preview.src = src;
+                    preview.style.display = 'block';
+                } else {
+                    file.classList.remove('file_active');
+                    preview.src = '';
+                    preview.style.display = 'none'; 
+                }
+            })
+        };
+
+        const formController = () => {
+            const form = document.querySelector('.employer__form');
+            // console.log(form);
+            const employerError = document.querySelector('.employer__error');
+
+            const validate = validationForm(form);
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                if(!validate.isValid) {
+                    return;
+                }
+
+                try {
+                    const formData = new FormData(form);
+                    employerError.textContent = "Отправка, подождите...";
+                    const response = await fetch(`${API_URL}${VACANCY_URL}`,{
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if(response.ok) {
+                        employerError.textContent = "";
+                        window.location.href = 'index.html';
+                    }
+                } catch (error) {
+                    employerError.textContent = "Произошла ошибка";
+                    console.error(error);
+                }
+            });
+        }
+
+        formController();
+        fileController();
+    } catch (error) {
+        console.log("error: " + error);
+        console.warn("Мы не на странице employer.html");
+    }
 };
 
 init();
